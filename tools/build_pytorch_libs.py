@@ -87,11 +87,16 @@ def build_pytorch(
     cmake_only: bool,
     cmake: CMake,
 ) -> None:
+    print("tests115")
+
     my_env = _create_build_env()
+    print(my_env)
     build_test = not check_negative_env_flag("BUILD_TEST")
     cmake.generate(
         version, cmake_python_library, build_python, build_test, my_env, rerun_cmake
     )
+    print("tests116")
+
     if cmake_only:
         return
     cmake.build(my_env)

@@ -130,14 +130,17 @@ class CMake:
 
         if rerun and os.path.isfile(self._cmake_cache_file):
             os.remove(self._cmake_cache_file)
-
+        print("tests1234")
         ninja_build_file = os.path.join(self.build_dir, "build.ninja")
+        print(ninja_build_file)
         if os.path.exists(self._cmake_cache_file) and not (
             USE_NINJA and not os.path.exists(ninja_build_file)
         ):
+            print(f"tests12345 {self._cmake_cache_file} {ninja_build_file}")
             # Everything's in place. Do not rerun.
             return
 
+        print("tests12345")
         args = []
         if USE_NINJA:
             # Avoid conflicts in '-G' and the `CMAKE_GENERATOR`
@@ -173,9 +176,10 @@ class CMake:
             if toolset_dict:
                 toolset_expr = ",".join([f"{k}={v}" for k, v in toolset_dict.items()])
                 args.append("-T" + toolset_expr)
-
+        print("tests12345")
         base_dir = str(Path(__file__).absolute().parents[2])
         install_dir = os.path.join(base_dir, "torch")
+        print("tests12345")
 
         _mkdir_p(install_dir)
         _mkdir_p(self.build_dir)

@@ -1126,6 +1126,7 @@ def main():
         "jinja2",
         "fsspec",
     ]
+    print("tests111")
 
     if BUILD_PYTHON_ONLY:
         install_requires.append(f"{LIBTORCH_PKG_NAME}=={get_torch_version()}")
@@ -1154,6 +1155,7 @@ def main():
         os.environ["CXXFLAGS"] = (
             os.getenv("CXXFLAGS", "") + " -ffunction-sections -fdata-sections"
         )
+    print("tests111")
 
     # Parse the command line and check the arguments before we proceed with
     # building deps and setup. We need to set values so `--help` works.
@@ -1165,10 +1167,12 @@ def main():
     except setuptools.distutils.errors.DistutilsArgError as e:
         print(e)
         sys.exit(1)
+    print("tests112")
 
     mirror_files_into_torchgen()
     if RUN_BUILD_DEPS:
         build_deps()
+    print("tests113")
 
     (
         extensions,
@@ -1183,7 +1187,7 @@ def main():
         "optree": ["optree>=0.13.0"],
         "opt-einsum": ["opt-einsum>=3.3"],
     }
-
+    print("tests111")
     # Read in README.md for our long_description
     with open(os.path.join(cwd, "README.md"), encoding="utf-8") as f:
         long_description = f.read()
