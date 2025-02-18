@@ -309,8 +309,8 @@ def ir_node_to_tensor(
         shape_fn = identity
     size = [shape_fn(s) for s in x.get_size()]
     stride: StrideType
-    if is_storage_and_layout(x):
-        stride = [shape_fn(s) for s in x.get_layout().stride]
+    if layout := x.maybe_get_layout():
+        stride = [shape_fn(s) for s in layout.stride]
     else:
         stride = FlexibleLayout.contiguous_strides(size)
     dtype = x.get_dtype()
