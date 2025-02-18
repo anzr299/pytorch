@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import typing
-from typing import Any, Generator, Optional, TYPE_CHECKING
+from typing import Any, Optional, TYPE_CHECKING
 
 import sympy
 
@@ -23,6 +23,7 @@ from .virtualized import V
 
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
     from functools import partial
 
     from triton import Config as TritonConfig

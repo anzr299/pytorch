@@ -2,7 +2,7 @@
 
 """Test the support on onnxscript in PyTorch-ONNX converter with onnxruntime."""
 
-from typing import Sequence
+from collections.abc import Sequence
 
 import onnx_test_common
 import onnxscript

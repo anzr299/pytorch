@@ -4,7 +4,7 @@ import itertools
 from collections import namedtuple
 from functools import partial
 from threading import Lock
-from typing import Any, Callable, Generator, List, Sequence, Tuple, Type, TYPE_CHECKING
+from typing import Any, Callable, TYPE_CHECKING
 
 from torch.utils._ordered_set import OrderedSet
 
@@ -14,6 +14,8 @@ from .virtualized import V
 
 
 if TYPE_CHECKING:
+    from collections.abc import Generator, Sequence
+
     from triton import Config as TritonConfig
 
 
@@ -23,7 +25,7 @@ class BaseConfigSingleton(type):
     to ensure heavy __init__ calls are not repeatedly run
     """
 
-    _instances: dict[Type[Any], Any] = {}
+    _instances: dict[type[Any], Any] = {}
     _lock: Lock = Lock()
 
     def __call__(
@@ -266,7 +268,7 @@ class BaseConfigHeuristic(metaclass=BaseConfigSingleton):
 
     def _finalize_mm_configs(
         self,
-        configs: List[Config],
+        configs: list[Config],
     ) -> Generator[TritonConfig, None, None]:
         """
         Finalizes configs after scaling, applying additional constraints.
@@ -300,7 +302,7 @@ class BaseConfigHeuristic(metaclass=BaseConfigSingleton):
         scale: float,
         has_int8_tensor: bool,
         exclude: Callable[[int, int, int], bool],
-    ) -> List[Config]:
+    ) -> list[Config]:
         """
         Scales and filters matrix multiplication configs based on input size.
         """
@@ -462,8 +464,8 @@ class ROCmConfigHeuristic(BaseConfigHeuristic):
         ]
 
     def _filter_configs(
-        self, configs: List[Config], new_num_stages: int
-    ) -> List[Config]:
+        self, configs: list[Config], new_num_stages: int
+    ) -> list[Config]:
         filtered_configs = [
             c._replace(num_stages=self.default_num_stages) for c in configs
         ]
@@ -471,9 +473,9 @@ class ROCmConfigHeuristic(BaseConfigHeuristic):
 
     def _finalize_mm_configs(
         self,
-        configs: List[Config],
+        configs: list[Config],
     ) -> Generator[TritonConfig, None, None]:
-        used = OrderedSet[Tuple[Config, int]]()
+        used = OrderedSet[tuple[Config, int]]()
 
         max_mm_configs = config.test_configs.max_mm_configs
         for block_m, block_n, block_k, num_stages, num_warps in configs:
