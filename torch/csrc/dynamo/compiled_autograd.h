@@ -167,8 +167,18 @@ struct TensorArgs {
     // TODO(jansel): Here we unpack the SavedVariable exactly once.  This might
     // fire SavedTensor hooks.  In the future we should try to put saved tensor
     // hooks into the graph.
+    //
     at::Tensor tensor = sv.unpack(node);
     TensorArg& arg = add(tensor);
+    //
+    _saved_variables.emplace(&sv, &arg);
+    return arg;
+  }
+
+  TensorArg& add_unpacked_sv(
+      const SavedVariable& sv,
+      const at::Tensor& container) {
+    TensorArg& arg = add(container);
     _saved_variables.emplace(&sv, &arg);
     return arg;
   }
@@ -259,6 +269,7 @@ struct AutogradCompilerCall {
   SizeInput::DynType default_dyn_type;
   // NodeCall id of each size, only when verbose logging is enabled
   std::vector<uint32_t> size_input_origins;
+  std::unordered_map<const SavedVariable*, size_t> sv_to_hooks;
 };
 
 class CompiledNodeArgs {
@@ -285,8 +296,19 @@ class CompiledNodeArgs {
     collect(_compiler.tensor_args.add(t));
   }
   void collect(const SavedVariable& sv, bool is_output) {
-    collect(
-        _compiler.tensor_args.add(sv, is_output ? _node_call.node : nullptr));
+    auto hook = sv.get_hook_for_compiled_autograd();
+    if (hook.has_value()) {
+      auto& [unpack_hook, data] = hook.value();
+      size_t unpack_id = _compiler.emplace_hook(std::move(unpack_hook));
+      size_t data_id = _compiler.emplace_hook(std::move(data));
+      TORCH_INTERNAL_ASSERT(data_id == unpack_id + 1);
+      // tensors need to be deduped
+      _compiler.sv_to_hooks.emplace(&sv, unpack_id);
+    } else {
+      // happy path, no hooks
+      collect(
+          _compiler.tensor_args.add(sv, is_output ? _node_call.node : nullptr));
+    }
   }
   void collect(const c10::SymInt& t) {
     _compiler.add_size_input(t);
